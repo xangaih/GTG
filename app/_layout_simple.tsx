@@ -5,7 +5,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { PaperProvider } from 'react-native-paper';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -42,20 +41,18 @@ export default function RootLayout() {
   const navigationTheme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
 
   return (
-    <PaperProvider>
-      <ThemeProvider value={navigationTheme}>
-        <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-          <Stack.Screen name="(mentor)" options={{ headerShown: false }} />
-          <Stack.Screen name="(visitor)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-          <Stack.Screen name="test-paper" options={{ title: 'Test Paper' }} />
-          <Stack.Screen name="test-import" options={{ title: 'Test Import' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </PaperProvider>
+    <ThemeProvider value={navigationTheme}>
+      <Stack>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+        <Stack.Screen name="(mentor)" options={{ headerShown: false }} />
+        <Stack.Screen name="(visitor)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="test-import" options={{ title: 'Test Import' }} />
+        <Stack.Screen name="test-paper" options={{ title: 'Test Paper' }} />
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
   );
-}
+} 
