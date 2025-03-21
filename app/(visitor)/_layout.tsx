@@ -1,23 +1,15 @@
 import { useEffect } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 import { Slot, useRouter } from 'expo-router';
-import { Appbar, BottomNavigation, Text } from 'react-native-paper';
+import { Appbar, Text } from 'react-native-paper';
 import { ThemedView } from '../../components/ThemedView';
 import { Colors } from '../../constants/Colors';
-import { useState } from 'react';
 
 // Mock authentication check - in a real app, this would check an auth state
 const isAuthenticated = () => true; // Replace with actual auth check
 
 export default function VisitorLayout() {
   const router = useRouter();
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
-    { key: 'explore', title: 'Explore', focusedIcon: 'compass', unfocusedIcon: 'compass-outline' },
-    { key: 'mentors', title: 'Mentors', focusedIcon: 'account-star', unfocusedIcon: 'account-star-outline' },
-    { key: 'schedule', title: 'Schedule', focusedIcon: 'calendar', unfocusedIcon: 'calendar-outline' },
-  ]);
 
   // Check if user is authenticated as visitor
   useEffect(() => {
@@ -31,13 +23,6 @@ export default function VisitorLayout() {
     // In a real app, perform logout operations
     router.replace('/(auth)/role-selection' as any);
   };
-
-  const renderScene = BottomNavigation.SceneMap({
-    home: () => <Slot />,
-    explore: () => <Slot />,
-    mentors: () => <Slot />,
-    schedule: () => <Slot />,
-  });
 
   return (
     <ThemedView style={styles.container}>
@@ -66,15 +51,6 @@ export default function VisitorLayout() {
       <View style={styles.content}>
         <Slot />
       </View>
-      
-      <BottomNavigation
-        navigationState={{ index, routes }}
-        onIndexChange={setIndex}
-        renderScene={renderScene}
-        barStyle={styles.bottomNavBar}
-        activeColor={Colors.light.primary}
-        inactiveColor="#888888"
-      />
     </ThemedView>
   );
 }
@@ -94,10 +70,5 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  bottomNavBar: {
-    backgroundColor: Colors.light.background,
-    borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
-  },
+  }
 }); 
