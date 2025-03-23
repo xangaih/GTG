@@ -1,118 +1,156 @@
-import { useState } from 'react';
-import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Button, TextInput, Text, Title, Surface, Divider } from 'react-native-paper';
-import { ThemedView } from '../../components/ThemedView';
+import { TextInput, Button, Text, Title, Snackbar } from 'react-native-paper';
+import { useAuth } from '../../contexts/AuthContext';
 import { Colors } from '../../constants/Colors';
+import { ThemedView } from '../../components/ThemedView';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { role } = useLocalSearchParams<{ role: string }>();
-  const [email, setEmail] = useState('');
+  const params = useLocalSearchParams();
+  const role = params.role?.toString() || 'visitor';
+  const { login } = useAuth();
+  
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleLogin = () => {
-    // Add authentication logic here
-    // For now, we'll simulate authentication based on role
-    if (email && password) {
-      switch (role) {
-        case 'admin':
-          router.replace('/(admin)' as any);
-          break;
-        case 'mentor':
-          router.replace('/(mentor)' as any);
-          break;
-        case 'visitor':
-          router.replace('/(visitor)' as any);
-          break;
-        default:
-          router.replace('/(visitor)' as any);
+  const [error, setError] = useState('');
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setError('Please enter both username and password');
+      setShowSnackbar(true);
+      return;
+    }
+    
+    // Normalize email input
+    const email = username.trim().toLowerCase();
+    
+    setLoading(true);
+    try {
+      const user = await login(email, password);
+      
+      if (user) {
+        // Navigate based on role
+        // We'll get the actual role from the AuthContext in the layout component
+        // This is just for the initial redirect after login
+        switch(role) {
+          case 'admin':
+            router.push('/(admin)');
+            break;
+          case 'mentor':
+            router.push('/(mentor)');
+            break;
+          default:
+            router.push('/(visitor)');
+        }
       }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Invalid username or password');
+      setShowSnackbar(true);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const roleTitle = () => {
-    switch (role) {
-      case 'admin': return 'Administrator';
-      case 'mentor': return 'Mentor';
-      case 'visitor': return 'Visitor';
-      default: return 'User';
-    }
+  
+  const goBack = () => {
+    router.back();
   };
-
+  
   return (
     <ThemedView style={styles.container}>
-      <Surface style={styles.loginCard} elevation={2}>
-        <Surface style={styles.logoContainer} elevation={0}>
-          <Image 
-            source={require('../../assets/images/depauw-logo.png')} 
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </Surface>
-        
-        <Title style={styles.title}>Login as {roleTitle()}</Title>
-        <Text style={styles.subtitle}>DePauw Pre-College Program</Text>
-        
-        <Divider style={styles.divider} />
-        
-        <TextInput
-          mode="outlined"
-          style={styles.input}
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          outlineColor={Colors.light.primary}
-          activeOutlineColor={Colors.light.headerBackground}
-          theme={{ roundness: 8 }}
-          left={<TextInput.Icon icon="email" color={Colors.light.icon} />}
-        />
-        
-        <TextInput
-          mode="outlined"
-          style={styles.input}
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          outlineColor={Colors.light.primary}
-          activeOutlineColor={Colors.light.headerBackground}
-          theme={{ roundness: 8 }}
-          left={<TextInput.Icon icon="lock" color={Colors.light.icon} />}
-          right={<TextInput.Icon 
-            icon={showPassword ? "eye-off" : "eye"} 
-            onPress={() => setShowPassword(!showPassword)}
-            color={Colors.light.icon}
-          />}
-        />
-        
-        <Button 
-          mode="contained" 
-          buttonColor={Colors.light.primary}
-          textColor={Colors.light.headerBackground}
-          style={styles.button}
-          onPress={handleLogin}
-          disabled={!email || !password}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
         >
-          Login
-        </Button>
-        
-        <Button 
-          mode="text"
-          textColor={Colors.light.primary}
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          Back to Role Selection
-        </Button>
-
-        <Text style={styles.footerText}>
-          © 2025 DePauw University. All rights reserved.
-        </Text>
-      </Surface>
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/images/depauw-logo.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          
+          <Title style={styles.title}>
+            {role === 'admin' ? 'Admin Login' : 
+             role === 'mentor' ? 'Mentor Login' : 'Student Login'}
+          </Title>
+          
+          <View style={styles.formContainer}>
+            <TextInput
+              label="Email"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              mode="outlined"
+              style={styles.input}
+            />
+            
+            <TextInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              mode="outlined"
+              right={
+                <TextInput.Icon 
+                  icon={showPassword ? "eye-off" : "eye"} 
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              }
+              style={styles.input}
+            />
+            
+            <Button
+              mode="contained"
+              onPress={handleLogin}
+              loading={loading}
+              disabled={loading}
+              style={styles.loginButton}
+            >
+              Log In
+            </Button>
+            
+            <Button
+              mode="text"
+              onPress={() => router.push('/forgot-password')}
+              style={styles.forgotButton}
+            >
+              Forgot Password?
+            </Button>
+            
+            <Button
+              mode="outlined"
+              onPress={goBack}
+              style={styles.backButton}
+            >
+              Back
+            </Button>
+          </View>
+          
+          <Text style={styles.footerText}>
+            DePauw University Pre-College Program
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      
+      <Snackbar
+        visible={showSnackbar}
+        onDismiss={() => setShowSnackbar(false)}
+        duration={3000}
+        style={styles.snackbar}
+      >
+        {error}
+      </Snackbar>
     </ThemedView>
   );
 }
@@ -120,60 +158,60 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     padding: 16,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginCard: {
-    width: '100%',
-    maxWidth: 400,
-    padding: 24,
-    borderRadius: 12,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: 'transparent',
+    marginBottom: 32,
   },
   logo: {
-    width: 180,
+    width: 200,
     height: 80,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 24,
     color: Colors.light.headerBackground,
   },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: Colors.light.text,
-    opacity: 0.7,
-    marginBottom: 8,
-  },
-  divider: {
-    marginVertical: 20,
-    backgroundColor: Colors.light.primary,
-    height: 1,
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   input: {
     marginBottom: 16,
     backgroundColor: Colors.light.background,
   },
-  button: {
-    marginTop: 16,
-    paddingVertical: 6,
-    borderRadius: 8,
+  loginButton: {
+    marginTop: 8,
+    marginBottom: 16,
+    paddingVertical: 8,
+    backgroundColor: Colors.light.primary,
+  },
+  forgotButton: {
+    marginBottom: 16,
   },
   backButton: {
-    marginTop: 8,
+    borderColor: Colors.light.primary,
+    borderWidth: 1,
   },
   footerText: {
     textAlign: 'center',
-    marginTop: 32,
+    marginTop: 'auto',
+    marginBottom: 16,
     fontSize: 12,
     color: Colors.light.text,
-    opacity: 0.7,
+  },
+  snackbar: {
+    backgroundColor: Colors.light.error,
   },
 }); 
