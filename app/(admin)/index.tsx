@@ -1,280 +1,87 @@
-// import { StyleSheet, View, ScrollView } from 'react-native';
-// import { useRouter } from 'expo-router';
-// import { Card, Text, Title, Button, Divider, DataTable, Badge, IconButton } from 'react-native-paper';
-// import { Colors } from '../../constants/Colors';
-
-// export default function AdminDashboard() {
-//   const router = useRouter();
-
-//   return (
-//     <ScrollView style={styles.container}>
-//       <View style={styles.pageHeader}>
-//         <Title style={styles.pageTitle}>Program Overview</Title>
-//         <Text style={styles.dateText}>Summer 2025</Text>
-//       </View>
-
-//       {/* Stats container with horizontal layout */}
-//       <View style={styles.statsContainer}>
-//         <Card style={styles.statsCard}>
-//           <Card.Content style={styles.statsCardContent}>
-//             <Text style={styles.statsNumber}>24</Text>
-//             <Text style={styles.statsLabel}>Active Campers</Text>
-//           </Card.Content>
-//           <Card.Actions>
-//             <Button 
-//               mode="text" 
-//               textColor={Colors.light.headerBackground}
-//               onPress={() => {}}
-//             >
-//               View All
-//             </Button>
-//           </Card.Actions>
-//         </Card>
-        
-//         <Card style={styles.statsCard}>
-//           <Card.Content style={styles.statsCardContent}>
-//             <Text style={styles.statsNumber}>8</Text>
-//             <Text style={styles.statsLabel}>Mentors</Text>
-//           </Card.Content>
-//           <Card.Actions>
-//             <Button 
-//               mode="text" 
-//               textColor={Colors.light.headerBackground}
-//               onPress={() => {}}
-//             >
-//               View All
-//             </Button>
-//           </Card.Actions>
-//         </Card>
-        
-//         <Card style={styles.statsCard}>
-//           <Card.Content style={styles.statsCardContent}>
-//             <Text style={styles.statsNumber}>42</Text>
-//             <Text style={styles.statsLabel}>Activities</Text>
-//           </Card.Content>
-//           <Card.Actions>
-//             <Button 
-//               mode="text" 
-//               textColor={Colors.light.headerBackground}
-//               onPress={() => {}}
-//             >
-//               View All
-//             </Button>
-//           </Card.Actions>
-//         </Card>
-//       </View>
-      
-//       <Card style={styles.sectionCard}>
-//         <Card.Title 
-//           title="Upcoming Activities" 
-//           titleStyle={styles.cardTitle}
-//           right={(props) => (
-//             <Button 
-//               mode="contained" 
-//               buttonColor={Colors.light.primary}
-//               textColor={Colors.light.headerBackground}
-//               compact
-//               onPress={() => {}}
-//             >
-//               Add New
-//             </Button>
-//           )}
-//         />
-//         <Divider />
-//         <Card.Content style={styles.tableContainer}>
-//           <DataTable>
-//             <DataTable.Header>
-//               <DataTable.Title>Activity</DataTable.Title>
-//               <DataTable.Title>Date</DataTable.Title>
-//               <DataTable.Title>Location</DataTable.Title>
-//               <DataTable.Title numeric>Participants</DataTable.Title>
-//               <DataTable.Title numeric>Actions</DataTable.Title>
-//             </DataTable.Header>
-
-//             <DataTable.Row>
-//               <DataTable.Cell>Campus Tour</DataTable.Cell>
-//               <DataTable.Cell>Jul 7, 9:00 AM</DataTable.Cell>
-//               <DataTable.Cell>Main Entrance</DataTable.Cell>
-//               <DataTable.Cell numeric>18</DataTable.Cell>
-//               <DataTable.Cell numeric>
-//                 <IconButton icon="pencil" size={20} onPress={() => {}} />
-//               </DataTable.Cell>
-//             </DataTable.Row>
-
-//             <DataTable.Row>
-//               <DataTable.Cell>Welcome Dinner</DataTable.Cell>
-//               <DataTable.Cell>Jul 7, 6:00 PM</DataTable.Cell>
-//               <DataTable.Cell>Hoover Hall</DataTable.Cell>
-//               <DataTable.Cell numeric>24</DataTable.Cell>
-//               <DataTable.Cell numeric>
-//                 <IconButton icon="pencil" size={20} onPress={() => {}} />
-//               </DataTable.Cell>
-//             </DataTable.Row>
-
-//             <DataTable.Row>
-//               <DataTable.Cell>Team Building</DataTable.Cell>
-//               <DataTable.Cell>Jul 8, 10:00 AM</DataTable.Cell>
-//               <DataTable.Cell>Bowman Park</DataTable.Cell>
-//               <DataTable.Cell numeric>22</DataTable.Cell>
-//               <DataTable.Cell numeric>
-//                 <IconButton icon="pencil" size={20} onPress={() => {}} />
-//               </DataTable.Cell>
-//             </DataTable.Row>
-//           </DataTable>
-//         </Card.Content>
-//       </Card>
-      
-//       <Card style={styles.sectionCard}>
-//         <Card.Title 
-//           title="Camper Status" 
-//           titleStyle={styles.cardTitle}
-//           right={(props) => (
-//             <Button 
-//               mode="contained" 
-//               buttonColor={Colors.light.primary}
-//               textColor={Colors.light.headerBackground}
-//               compact
-//               onPress={() => {}}
-//             >
-//               View All
-//             </Button>
-//           )}
-//         />
-//         <Divider />
-//         <Card.Content style={styles.tableContainer}>
-//           <DataTable>
-//             <DataTable.Header>
-//               <DataTable.Title>Name</DataTable.Title>
-//               <DataTable.Title>Age</DataTable.Title>
-//               <DataTable.Title>Mentor</DataTable.Title>
-//               <DataTable.Title>Status</DataTable.Title>
-//               <DataTable.Title numeric>Actions</DataTable.Title>
-//             </DataTable.Header>
-
-//             <DataTable.Row>
-//               <DataTable.Cell>Emma Johnson</DataTable.Cell>
-//               <DataTable.Cell>16</DataTable.Cell>
-//               <DataTable.Cell>Dr. Smith</DataTable.Cell>
-//               <DataTable.Cell>
-//                 <Badge style={styles.statusBadgeActive}>Active</Badge>
-//               </DataTable.Cell>
-//               <DataTable.Cell numeric>
-//                 <IconButton icon="eye" size={20} onPress={() => {}} />
-//               </DataTable.Cell>
-//             </DataTable.Row>
-
-//             <DataTable.Row>
-//               <DataTable.Cell>James Wilson</DataTable.Cell>
-//               <DataTable.Cell>17</DataTable.Cell>
-//               <DataTable.Cell>Prof. Roberts</DataTable.Cell>
-//               <DataTable.Cell>
-//                 <Badge style={styles.statusBadgeActive}>Active</Badge>
-//               </DataTable.Cell>
-//               <DataTable.Cell numeric>
-//                 <IconButton icon="eye" size={20} onPress={() => {}} />
-//               </DataTable.Cell>
-//             </DataTable.Row>
-
-//             <DataTable.Row>
-//               <DataTable.Cell>Sophia Martinez</DataTable.Cell>
-//               <DataTable.Cell>16</DataTable.Cell>
-//               <DataTable.Cell>Dr. Lee</DataTable.Cell>
-//               <DataTable.Cell>
-//                 <Badge style={styles.statusBadgePending}>Pending</Badge>
-//               </DataTable.Cell>
-//               <DataTable.Cell numeric>
-//                 <IconButton icon="eye" size={20} onPress={() => {}} />
-//               </DataTable.Cell>
-//             </DataTable.Row>
-//           </DataTable>
-//         </Card.Content>
-//       </Card>
-
-//       <Text style={styles.footerText}>
-//         DePauw University Pre-College Program Dashboard
-//       </Text>
-//     </ScrollView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 16,
-//     backgroundColor: '#F5F5F5',
-//   },
-//   pageHeader: {
-//     marginBottom: 24,
-//   },
-//   pageTitle: {
-//     fontSize: 28,
-//     fontWeight: 'bold',
-//     color: Colors.light.headerBackground,
-//   },
-//   dateText: {
-//     fontSize: 16,
-//     color: Colors.light.text,
-//     opacity: 0.7,
-//   },
-//   statsContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginBottom: 24,
-//   },
-//   statsCard: {
-//     width: '31%',
-//     backgroundColor: Colors.light.background,
-//     marginBottom: 16, // Added margin to prevent overlap
-//   },
-//   statsCardContent: {
-//     alignItems: 'center',
-//     paddingVertical: 16,
-//   },
-//   statsNumber: {
-//     fontSize: 32,
-//     fontWeight: 'bold',
-//     color: Colors.light.primary,
-//   },
-//   statsLabel: {
-//     fontSize: 14,
-//     color: Colors.light.text,
-//     marginTop: 4,
-//   },
-//   sectionCard: {
-//     marginBottom: 24,
-//     backgroundColor: Colors.light.background,
-//   },
-//   cardTitle: {
-//     fontSize: 18,
-//     color: Colors.light.headerBackground,
-//   },
-//   tableContainer: {
-//     paddingHorizontal: 0,
-//     paddingVertical: 8,
-//   },
-//   statusBadgeActive: {
-//     backgroundColor: '#4CAF50',
-//     color: 'white',
-//   },
-//   statusBadgePending: {
-//     backgroundColor: '#FF9800',
-//     color: 'white',
-//   },
-//   footerText: {
-//     textAlign: 'center',
-//     marginVertical: 16,
-//     color: Colors.light.text,
-//     opacity: 0.7,
-//   },
-// });
-
+import { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Card, Text, Title, Button, Divider, DataTable, Badge, IconButton } from 'react-native-paper';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 import { Colors } from '../../constants/Colors';
+
+// Define interfaces for our data structures
+interface User {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  status?: string;
+  createdAt?: string;
+  program?: string;
+  [key: string]: any;
+}
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const [visitorCount, setVisitorCount] = useState(0);
+  const [mentorCount, setMentorCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [visitors, setVisitors] = useState<User[]>([]);
+
+  // Fetch counts on component mount
+  useEffect(() => {
+    fetchCounts();
+    fetchRecentVisitors();
+  }, []);
+
+  const fetchCounts = async () => {
+    setLoading(true);
+    try {
+      // Count visitors
+      const visitorQuery = query(collection(db, 'users'), where('role', '==', 'visitor'));
+      const visitorSnapshot = await getDocs(visitorQuery);
+      setVisitorCount(visitorSnapshot.size);
+
+      // Count mentors
+      const mentorQuery = query(collection(db, 'users'), where('role', '==', 'mentor'));
+      const mentorSnapshot = await getDocs(mentorQuery);
+      setMentorCount(mentorSnapshot.size);
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRecentVisitors = async () => {
+    try {
+      const visitorQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'visitor')
+      );
+      const snapshot = await getDocs(visitorQuery);
+      
+      if (!snapshot.empty) {
+        const visitorData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as User[];
+        
+        // Sort by date and take most recent
+        const sorted = visitorData.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        setVisitors(sorted.slice(0, 3)); // Get top 3 recent visitors
+      }
+    } catch (error) {
+      console.error("Error fetching recent visitors:", error);
+    }
+  };
+
+  const navigateToUserManagement = () => {
+    router.push('/user-management');
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -287,14 +94,17 @@ export default function AdminDashboard() {
       <View style={styles.statsContainer}>
         <View style={styles.statsCard}>
           <View style={styles.statsCardContent}>
-            <Text style={styles.statsNumber}>24</Text>
-            <Text style={styles.statsLabel}>Active Campers</Text>
+            <Text style={styles.statsNumber}>
+              {loading ? '...' : visitorCount}
+            </Text>
+            <Text style={styles.statsLabel}>Active Visitors</Text>
           </View>
           <Button 
             mode="text" 
             textColor={Colors.light.headerBackground}
-            onPress={() => {}}
+            onPress={() => router.push('/user-management')}
             style={styles.viewButton}
+            disabled={loading}
           >
             View All
           </Button>
@@ -302,105 +112,35 @@ export default function AdminDashboard() {
         
         <View style={styles.statsCard}>
           <View style={styles.statsCardContent}>
-            <Text style={styles.statsNumber}>8</Text>
+            <Text style={styles.statsNumber}>
+              {loading ? '...' : mentorCount}
+            </Text>
             <Text style={styles.statsLabel}>Mentors</Text>
           </View>
           <Button 
             mode="text" 
             textColor={Colors.light.headerBackground}
-            onPress={() => {}}
+            onPress={() => router.push('/user-management?role=mentor')}
             style={styles.viewButton}
-          >
-            View All
-          </Button>
-        </View>
-        
-        <View style={styles.statsCard}>
-          <View style={styles.statsCardContent}>
-            <Text style={styles.statsNumber}>42</Text>
-            <Text style={styles.statsLabel}>Activities</Text>
-          </View>
-          <Button 
-            mode="text" 
-            textColor={Colors.light.headerBackground}
-            onPress={() => {}}
-            style={styles.viewButton}
+            disabled={loading}
           >
             View All
           </Button>
         </View>
       </View>
       
-      {/* Upcoming Activities Section */}
+      {/* Visitor Status Section */}
       <View style={styles.sectionCard}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Upcoming Activities</Text>
+          <Text style={styles.cardTitle}>Visitor Status</Text>
           <Button 
             mode="contained" 
             buttonColor={Colors.light.primary}
             textColor={Colors.light.headerBackground}
             compact
-            onPress={() => {}}
+            onPress={navigateToUserManagement}
           >
-            Add New
-          </Button>
-        </View>
-        <Divider />
-        <View style={styles.tableContainer}>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title>Activity</DataTable.Title>
-              <DataTable.Title>Date</DataTable.Title>
-              <DataTable.Title>Location</DataTable.Title>
-              <DataTable.Title numeric>Participants</DataTable.Title>
-              <DataTable.Title numeric>Actions</DataTable.Title>
-            </DataTable.Header>
-
-            <DataTable.Row>
-              <DataTable.Cell>Campus Tour</DataTable.Cell>
-              <DataTable.Cell>Jul 7, 9:00 AM</DataTable.Cell>
-              <DataTable.Cell>Main Entrance</DataTable.Cell>
-              <DataTable.Cell numeric>18</DataTable.Cell>
-              <DataTable.Cell numeric>
-                <IconButton icon="pencil" size={20} onPress={() => {}} />
-              </DataTable.Cell>
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>Welcome Dinner</DataTable.Cell>
-              <DataTable.Cell>Jul 7, 6:00 PM</DataTable.Cell>
-              <DataTable.Cell>Hoover Hall</DataTable.Cell>
-              <DataTable.Cell numeric>24</DataTable.Cell>
-              <DataTable.Cell numeric>
-                <IconButton icon="pencil" size={20} onPress={() => {}} />
-              </DataTable.Cell>
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>Team Building</DataTable.Cell>
-              <DataTable.Cell>Jul 8, 10:00 AM</DataTable.Cell>
-              <DataTable.Cell>Bowman Park</DataTable.Cell>
-              <DataTable.Cell numeric>22</DataTable.Cell>
-              <DataTable.Cell numeric>
-                <IconButton icon="pencil" size={20} onPress={() => {}} />
-              </DataTable.Cell>
-            </DataTable.Row>
-          </DataTable>
-        </View>
-      </View>
-      
-      {/* Camper Status Section */}
-      <View style={styles.sectionCard}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Camper Status</Text>
-          <Button 
-            mode="contained" 
-            buttonColor={Colors.light.primary}
-            textColor={Colors.light.headerBackground}
-            compact
-            onPress={() => {}}
-          >
-            View All
+            Manage Visitors
           </Button>
         </View>
         <Divider />
@@ -408,47 +148,42 @@ export default function AdminDashboard() {
           <DataTable>
             <DataTable.Header>
               <DataTable.Title>Name</DataTable.Title>
-              <DataTable.Title>Age</DataTable.Title>
-              <DataTable.Title>Mentor</DataTable.Title>
+              <DataTable.Title>Email/Phone</DataTable.Title>
+              <DataTable.Title>Program</DataTable.Title>
               <DataTable.Title>Status</DataTable.Title>
               <DataTable.Title numeric>Actions</DataTable.Title>
             </DataTable.Header>
 
-            <DataTable.Row>
-              <DataTable.Cell>Emma Johnson</DataTable.Cell>
-              <DataTable.Cell>16</DataTable.Cell>
-              <DataTable.Cell>Dr. Smith</DataTable.Cell>
-              <DataTable.Cell>
-                <Badge style={styles.statusBadgeActive}>Active</Badge>
-              </DataTable.Cell>
-              <DataTable.Cell numeric>
-                <IconButton icon="eye" size={20} onPress={() => {}} />
-              </DataTable.Cell>
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>James Wilson</DataTable.Cell>
-              <DataTable.Cell>17</DataTable.Cell>
-              <DataTable.Cell>Prof. Roberts</DataTable.Cell>
-              <DataTable.Cell>
-                <Badge style={styles.statusBadgeActive}>Active</Badge>
-              </DataTable.Cell>
-              <DataTable.Cell numeric>
-                <IconButton icon="eye" size={20} onPress={() => {}} />
-              </DataTable.Cell>
-            </DataTable.Row>
-
-            <DataTable.Row>
-              <DataTable.Cell>Sophia Martinez</DataTable.Cell>
-              <DataTable.Cell>16</DataTable.Cell>
-              <DataTable.Cell>Dr. Lee</DataTable.Cell>
-              <DataTable.Cell>
-                <Badge style={styles.statusBadgePending}>Pending</Badge>
-              </DataTable.Cell>
-              <DataTable.Cell numeric>
-                <IconButton icon="eye" size={20} onPress={() => {}} />
-              </DataTable.Cell>
-            </DataTable.Row>
+            {visitors.length > 0 ? (
+              visitors.map((visitor: User) => (
+                <DataTable.Row key={visitor.id}>
+                  <DataTable.Cell>{visitor.name || 'N/A'}</DataTable.Cell>
+                  <DataTable.Cell>
+                    {visitor.email || 'N/A'}
+                    {visitor.phone && <Text>{'\n'}{visitor.phone}</Text>}
+                  </DataTable.Cell>
+                  <DataTable.Cell>{visitor.program || 'N/A'}</DataTable.Cell>
+                  <DataTable.Cell>
+                    <Badge style={styles.statusBadgeActive}>
+                      {visitor.status || 'Active'}
+                    </Badge>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>
+                    <IconButton 
+                      icon="eye" 
+                      size={20} 
+                      onPress={() => router.push(`/user-management?id=${visitor.id}`)} 
+                    />
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))
+            ) : (
+              <DataTable.Row>
+                <DataTable.Cell style={{ flex: 5, justifyContent: 'center' }}>
+                  <Text>No visitors found. Add visitors through the Manage Visitors page.</Text>
+                </DataTable.Cell>
+              </DataTable.Row>
+            )}
           </DataTable>
         </View>
       </View>
@@ -486,49 +221,58 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   statsCard: {
-    width: '32%', // Slightly wider cards
+    width: '48%', // Two cards side by side with some margin
     backgroundColor: Colors.light.background,
     padding: 16,
-    borderRadius: 8, // Rounded corners
-    justifyContent: 'space-between', // Align content and button
-    height: 150, // Fixed height for consistency
+    borderRadius: 8,
+    justifyContent: 'space-between',
+    height: 150,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
   },
   statsCardContent: {
     alignItems: 'center',
   },
   statsNumber: {
-    fontSize: 24, // Adjusted font size for better fit
+    fontSize: 40,
     fontWeight: 'bold',
     color: Colors.light.primary,
   },
   statsLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.light.text,
-    marginTop: 4,
+    marginTop: 8,
   },
   viewButton: {
-    alignSelf: 'center', 
-    width: '100%'// Center the button horizontally
+    marginTop: 8,
+    alignSelf: 'center',
   },
   sectionCard: {
-    marginBottom: 24,
     backgroundColor: Colors.light.background,
-    padding: 16,
-    borderRadius: 8, // Rounded corners
+    borderRadius: 8,
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    padding: 16,
   },
   cardTitle: {
     fontSize: 18,
+    fontWeight: 'bold',
     color: Colors.light.headerBackground,
   },
   tableContainer: {
-    paddingHorizontal: 0,
-    paddingVertical: 8,
+    padding: 8,
   },
   statusBadgeActive: {
     backgroundColor: '#4CAF50',
