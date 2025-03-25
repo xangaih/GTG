@@ -1,7 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Stack, useRouter, useSegments, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useCallback } from 'react';
 import 'react-native-reanimated';
@@ -25,27 +24,30 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  const onLayoutRootView = useCallback(async () => {
-    if (loaded) {
-      // Hide the splash screen once assets are loaded
-      await SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  // Handle initial routing after layout is mounted
+  // Handle initial routing based on authentication
   useEffect(() => {
     if (!loaded) return;
 
-    // We need to wait until after the first render to safely navigate
-    const timer = setTimeout(() => {
-      const firstSegment = segments[0];
-      if (!firstSegment) {
-        router.replace('/(auth)/role-selection');
+    const firstSegment = segments[0];
+    if (!firstSegment) {
+      // Route to the auth path after the layout is fully mounted and router is ready
+      try {
+        // Using requestAnimationFrame ensures the UI is ready before navigation
+        requestAnimationFrame(() => {
+          router.replace('/(auth)/role-selection');
+        });
+      } catch (e) {
+        console.error('Navigation error:', e);
       }
-    }, 0);
-
-    return () => clearTimeout(timer);
+    }
   }, [loaded, segments, router]);
+
+  // Hide splash screen once everything is loaded
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
 
   if (!loaded) {
     return <View />;
@@ -57,7 +59,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <PaperProvider theme={theme}>
-        <SafeAreaProvider onLayout={onLayoutRootView}>
+        <SafeAreaProvider>
           <ThemeProvider value={navigationTheme}>
             <Stack>
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
