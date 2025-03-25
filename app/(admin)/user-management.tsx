@@ -22,6 +22,13 @@ interface User {
   role?: string;
   status?: string;
   createdAt?: string;
+  studentId?: string;
+  program?: string;
+  grade?: string;
+  school?: string;
+  address?: string;
+  emergencyContact?: string;
+  notes?: string;
   [key: string]: any;
 }
 
@@ -30,6 +37,13 @@ interface ImportUser {
   email: string;
   phone: string;
   role: string;
+  studentId?: string;
+  program?: string;
+  grade?: string;
+  school?: string;
+  address?: string;
+  emergencyContact?: string;
+  notes?: string;
 }
 
 export default function UserManagementScreen() {
@@ -46,6 +60,13 @@ export default function UserManagementScreen() {
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPhone, setNewUserPhone] = useState('');
   const [newUserName, setNewUserName] = useState('');
+  const [newUserStudentId, setNewUserStudentId] = useState('');
+  const [newUserProgram, setNewUserProgram] = useState('');
+  const [newUserGrade, setNewUserGrade] = useState('');
+  const [newUserSchool, setNewUserSchool] = useState('');
+  const [newUserAddress, setNewUserAddress] = useState('');
+  const [newUserEmergencyContact, setNewUserEmergencyContact] = useState('');
+  const [newUserNotes, setNewUserNotes] = useState('');
   
   // Page state
   const [page, setPage] = useState(0);
@@ -128,8 +149,28 @@ export default function UserManagementScreen() {
         return;
       }
       
+      // Define the expected columns (case-insensitive)
+      const expectedColumns = [
+        { field: 'name', aliases: ['name', 'fullname', 'full name'] },
+        { field: 'email', aliases: ['email', 'email address'] },
+        { field: 'phone', aliases: ['phone', 'phone number', 'phonenumber', 'mobile'] },
+        { field: 'studentId', aliases: ['student id', 'studentid', 'id', 'student number'] },
+        { field: 'program', aliases: ['program', 'course', 'major'] },
+        { field: 'grade', aliases: ['grade', 'grade level', 'year'] },
+        { field: 'school', aliases: ['school', 'institution', 'university'] },
+        { field: 'address', aliases: ['address', 'home address', 'location'] },
+        { field: 'emergencyContact', aliases: ['emergency contact', 'emergency', 'emergency phone'] },
+        { field: 'notes', aliases: ['notes', 'comments', 'additional info'] }
+      ];
+      
       // Check for required fields - email or phone number
-      const validData = jsonData.filter((row: any) => row.email || row.phone || row.phoneNumber || row.Email || row.Phone);
+      const validData = jsonData.filter((row: any) => {
+        // Check if any email or phone field exists
+        return expectedColumns.some(col => 
+          (col.field === 'email' || col.field === 'phone') && 
+          col.aliases.some(alias => row[alias] !== undefined)
+        );
+      });
       
       if (validData.length === 0) {
         Alert.alert('Error', 'No valid data with email or phone found');
@@ -138,12 +179,46 @@ export default function UserManagementScreen() {
       }
       
       // Normalize the data
-      const normalizedData = validData.map((row: any) => ({
-        name: row.name || row.fullName || row.Name || row.FullName || 'User',
-        email: (row.email || row.Email || '').toString().toLowerCase(),
-        phone: row.phone || row.phoneNumber || row.Phone || row.PhoneNumber || '',
-        role: selectedRole
-      }));
+      const normalizedData = validData.map((row: any) => {
+        const normalizedUser: ImportUser = {
+          name: 'User', // Default value
+          email: '',
+          phone: '',
+          role: selectedRole
+        };
+        
+        // Process each expected column
+        expectedColumns.forEach(column => {
+          // Find the first matching alias that exists in the row
+          const matchingAlias = column.aliases.find(alias => {
+            // Check for case insensitive match
+            const aliasKey = Object.keys(row).find(key => key.toLowerCase() === alias.toLowerCase());
+            return aliasKey !== undefined;
+          });
+          
+          // If we found a match, extract the value
+          if (matchingAlias) {
+            const key = Object.keys(row).find(k => k.toLowerCase() === matchingAlias.toLowerCase()) || '';
+            const value = row[key];
+            
+            // For email, ensure lowercase
+            if (column.field === 'email' && value) {
+              normalizedUser[column.field] = value.toString().toLowerCase();
+            }
+            // For other fields, just copy the value
+            else if (value !== undefined && value !== null) {
+              normalizedUser[column.field as keyof ImportUser] = value.toString();
+            }
+          }
+        });
+        
+        // Ensure we have a name
+        if (!normalizedUser.name) {
+          normalizedUser.name = 'User';
+        }
+        
+        return normalizedUser;
+      });
       
       setImportData(normalizedData);
       setShowImportModal(true);
@@ -173,6 +248,13 @@ export default function UserManagementScreen() {
           email: user.email,
           phone: user.phone,
           role: selectedRole,
+          studentId: user.studentId,
+          program: user.program,
+          grade: user.grade,
+          school: user.school,
+          address: user.address,
+          emergencyContact: user.emergencyContact,
+          notes: user.notes,
           createdAt: new Date().toISOString(),
           status: 'invited'
         }));
@@ -199,41 +281,36 @@ export default function UserManagementScreen() {
     
     setLoading(true);
     try {
-      // Check if user already exists
-      const userQuery = query(
-        collection(db, 'users'), 
-        where('email', '==', newUserEmail.toLowerCase())
-      );
-      const userSnapshot = await getDocs(userQuery);
-      
-      if (!userSnapshot.empty) {
-        Alert.alert('Error', 'A user with this email already exists');
-        setLoading(false);
-        return;
-      }
-      
-      // Call Firebase Function to send credentials
-      const sendCredentials = httpsCallable(functions, 'sendUserCredentials');
-      await sendCredentials({ 
-        users: [{
-          name: newUserName || 'User',
-          email: newUserEmail.toLowerCase(),
-          phone: newUserPhone,
-          role: selectedRole
-        }]
-      });
-      
       // Add user to Firestore
-      await addDoc(collection(db, 'users'), {
+      const userDoc = await addDoc(collection(db, 'users'), {
         name: newUserName || 'User',
-        email: newUserEmail.toLowerCase(),
+        email: newUserEmail,
         phone: newUserPhone,
         role: selectedRole,
+        studentId: newUserStudentId,
+        program: newUserProgram,
+        grade: newUserGrade,
+        school: newUserSchool,
+        address: newUserAddress,
+        emergencyContact: newUserEmergencyContact,
+        notes: newUserNotes,
         createdAt: new Date().toISOString(),
         status: 'invited'
       });
       
-      Alert.alert('Success', 'User added and invited successfully!');
+      // If email is provided, send invitation
+      if (newUserEmail) {
+        const sendCredentials = httpsCallable(functions, 'sendUserCredentials');
+        await sendCredentials({ 
+          users: [{
+            name: newUserName || 'User',
+            email: newUserEmail,
+            role: selectedRole
+          }]
+        });
+      }
+      
+      Alert.alert('Success', 'User added successfully');
       setShowAddModal(false);
       clearNewUserForm();
       await fetchUsers();
@@ -246,9 +323,17 @@ export default function UserManagementScreen() {
   };
 
   const clearNewUserForm = () => {
+    setNewUserName('');
     setNewUserEmail('');
     setNewUserPhone('');
-    setNewUserName('');
+    setNewUserStudentId('');
+    setNewUserProgram('');
+    setNewUserGrade('');
+    setNewUserSchool('');
+    setNewUserAddress('');
+    setNewUserEmergencyContact('');
+    setNewUserNotes('');
+    setSelectedRole('visitor');
   };
 
   const deleteUser = async (userId: string) => {
@@ -307,6 +392,48 @@ export default function UserManagementScreen() {
     }
   };
 
+  const downloadTemplate = () => {
+    // Define the template headers
+    const headers = [
+      'Name', 
+      'Email', 
+      'Phone', 
+      'Student ID', 
+      'Program', 
+      'Grade', 
+      'School', 
+      'Address', 
+      'Emergency Contact', 
+      'Notes'
+    ];
+
+    // Create a workbook with a single worksheet
+    const wb = XLSX.utils.book_new();
+    
+    // Create a worksheet with the headers and a sample row
+    const sampleData = [
+      'John Doe',
+      'john.doe@example.com',
+      '123-456-7890',
+      'S12345',
+      'Computer Science',
+      'Sophomore',
+      'DePauw University',
+      '123 Main St, Greencastle, IN',
+      'Jane Doe 987-654-3210',
+      'Allergic to peanuts'
+    ];
+    
+    // Add headers and sample row to worksheet
+    const ws = XLSX.utils.aoa_to_sheet([headers, sampleData]);
+    
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'User Import Template');
+    
+    // Generate file and download
+    XLSX.writeFile(wb, 'user_import_template.xlsx');
+  };
+
   const filteredUsers = users.filter(user => {
     const query = searchQuery.toLowerCase();
     return (
@@ -344,6 +471,14 @@ export default function UserManagementScreen() {
         >
           Import Excel
         </Button>
+        <Button 
+          mode="outlined" 
+          icon="file-download" 
+          onPress={downloadTemplate}
+          style={styles.actionButton}
+        >
+          Download Template
+        </Button>
       </View>
       
       <Searchbar
@@ -358,6 +493,7 @@ export default function UserManagementScreen() {
           <DataTable.Header>
             <DataTable.Title>Name</DataTable.Title>
             <DataTable.Title>Email/Phone</DataTable.Title>
+            <DataTable.Title>Student Info</DataTable.Title>
             <DataTable.Title>Role</DataTable.Title>
             <DataTable.Title>Status</DataTable.Title>
             <DataTable.Title>Actions</DataTable.Title>
@@ -369,6 +505,11 @@ export default function UserManagementScreen() {
               <DataTable.Cell>
                 {user.email}
                 {user.phone && <Text>{'\n'}{user.phone}</Text>}
+              </DataTable.Cell>
+              <DataTable.Cell>
+                {user.studentId && <Text>ID: {user.studentId}</Text>}
+                {user.program && <Text>{'\n'}Program: {user.program}</Text>}
+                {user.grade && <Text>{'\n'}Grade: {user.grade}</Text>}
               </DataTable.Cell>
               <DataTable.Cell>
                 <Chip mode="outlined" style={getStyleForRole(user.role)}>
@@ -440,59 +581,121 @@ export default function UserManagementScreen() {
         >
           <Text style={styles.modalTitle}>Add New User</Text>
           
-          <TextInput
-            label="Name"
-            value={newUserName}
-            onChangeText={setNewUserName}
-            style={styles.input}
-            mode="outlined"
-          />
-          
-          <TextInput
-            label="Email"
-            value={newUserEmail}
-            onChangeText={setNewUserEmail}
-            style={styles.input}
-            mode="outlined"
-            keyboardType="email-address"
-          />
-          
-          <TextInput
-            label="Phone Number"
-            value={newUserPhone}
-            onChangeText={setNewUserPhone}
-            style={styles.input}
-            mode="outlined"
-            keyboardType="phone-pad"
-          />
-          
-          <Text style={styles.label}>Role</Text>
-          <View style={styles.roleSelection}>
-            <Chip
-              selected={selectedRole === 'visitor'}
-              onPress={() => setSelectedRole('visitor')}
-              style={styles.roleChip}
-              selectedColor={Colors.light.primary}
-            >
-              Visitor
-            </Chip>
-            <Chip
-              selected={selectedRole === 'mentor'}
-              onPress={() => setSelectedRole('mentor')}
-              style={styles.roleChip}
-              selectedColor={Colors.light.primary}
-            >
-              Mentor
-            </Chip>
-            <Chip
-              selected={selectedRole === 'admin'}
-              onPress={() => setSelectedRole('admin')}
-              style={styles.roleChip}
-              selectedColor={Colors.light.primary}
-            >
-              Admin
-            </Chip>
-          </View>
+          <ScrollView style={styles.modalScrollView}>
+            <TextInput
+              label="Name"
+              value={newUserName}
+              onChangeText={setNewUserName}
+              style={styles.input}
+              mode="outlined"
+            />
+            
+            <TextInput
+              label="Email"
+              value={newUserEmail}
+              onChangeText={setNewUserEmail}
+              style={styles.input}
+              mode="outlined"
+              keyboardType="email-address"
+            />
+            
+            <TextInput
+              label="Phone Number"
+              value={newUserPhone}
+              onChangeText={setNewUserPhone}
+              style={styles.input}
+              mode="outlined"
+              keyboardType="phone-pad"
+            />
+            
+            <TextInput
+              label="Student ID"
+              value={newUserStudentId}
+              onChangeText={setNewUserStudentId}
+              style={styles.input}
+              mode="outlined"
+            />
+            
+            <TextInput
+              label="Program"
+              value={newUserProgram}
+              onChangeText={setNewUserProgram}
+              style={styles.input}
+              mode="outlined"
+            />
+            
+            <TextInput
+              label="Grade/Year"
+              value={newUserGrade}
+              onChangeText={setNewUserGrade}
+              style={styles.input}
+              mode="outlined"
+            />
+            
+            <TextInput
+              label="School/Institution"
+              value={newUserSchool}
+              onChangeText={setNewUserSchool}
+              style={styles.input}
+              mode="outlined"
+            />
+            
+            <TextInput
+              label="Address"
+              value={newUserAddress}
+              onChangeText={setNewUserAddress}
+              style={styles.input}
+              mode="outlined"
+              multiline
+              numberOfLines={2}
+            />
+            
+            <TextInput
+              label="Emergency Contact"
+              value={newUserEmergencyContact}
+              onChangeText={setNewUserEmergencyContact}
+              style={styles.input}
+              mode="outlined"
+            />
+            
+            <TextInput
+              label="Notes"
+              value={newUserNotes}
+              onChangeText={setNewUserNotes}
+              style={styles.input}
+              mode="outlined"
+              multiline
+              numberOfLines={3}
+            />
+            
+            <Text style={styles.label}>Role</Text>
+            <View style={styles.roleSelection}>
+              <Chip
+                selected={selectedRole === 'visitor'}
+                onPress={() => setSelectedRole('visitor')}
+                style={styles.roleChip}
+                selectedColor={Colors.light.primary}
+              >
+                Visitor
+              </Chip>
+              <Chip
+                selected={selectedRole === 'mentor'}
+                onPress={() => setSelectedRole('mentor')}
+                style={styles.roleChip}
+                selectedColor={Colors.light.primary}
+              >
+                Mentor
+              </Chip>
+              <Chip
+                selected={selectedRole === 'admin'}
+                onPress={() => setSelectedRole('admin')}
+                style={styles.roleChip}
+                selectedColor={Colors.light.primary}
+              >
+                Admin
+              </Chip>
+            </View>
+          </ScrollView>
           
           <View style={styles.modalActions}>
             <Button 
@@ -537,6 +740,10 @@ export default function UserManagementScreen() {
             <>
               <Text style={styles.importSubtitle}>
                 Found {importData.length} users to import. Please review the data before proceeding.
+                {'\n\n'}
+                <Text style={styles.templateInfo}>
+                  Note: For best results, use our template format. You can download it using the "Download Template" button.
+                </Text>
               </Text>
               
               <Text style={styles.label}>Role for all imported users:</Text>
@@ -576,7 +783,12 @@ export default function UserManagementScreen() {
                         description={
                           <>
                             {user.email && <Text>Email: {user.email}{'\n'}</Text>}
-                            {user.phone && <Text>Phone: {user.phone}</Text>}
+                            {user.phone && <Text>Phone: {user.phone}{'\n'}</Text>}
+                            {user.studentId && <Text>Student ID: {user.studentId}{'\n'}</Text>}
+                            {user.program && <Text>Program: {user.program}{'\n'}</Text>}
+                            {user.grade && <Text>Grade: {user.grade}{'\n'}</Text>}
+                            {user.school && <Text>School: {user.school}{'\n'}</Text>}
+                            {user.emergencyContact && <Text>Emergency Contact: {user.emergencyContact}</Text>}
                           </>
                         }
                         left={props => <List.Icon {...props} icon="account" />}
@@ -745,5 +957,13 @@ const styles = StyleSheet.create({
   loadingSubtext: {
     fontSize: 14,
     color: '#666',
+  },
+  modalScrollView: {
+    maxHeight: 500,
+  },
+  templateInfo: {
+    fontStyle: 'italic',
+    fontSize: 12,
+    color: Colors.light.text,
   },
 }); 
