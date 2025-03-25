@@ -1,8 +1,8 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments, SplashScreen } from 'expo-router';
+import { Stack, useRouter, useSegments, SplashScreen, Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -15,32 +15,38 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+// Root component that handles initial navigation based on auth state
+function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
+
+  useEffect(() => {
+    const firstSegment = segments[0];
+    if (!firstSegment) {
+      router.replace('/(auth)/role-selection');
+    }
+  }, [segments]);
+
+  return (
+    <Stack>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+      <Stack.Screen name="(mentor)" options={{ headerShown: false }} />
+      <Stack.Screen name="(visitor)" options={{ headerShown: false }} />
+      <Stack.Screen name="(loggedIn)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+      <Stack.Screen name="test-paper" options={{ title: 'Test Paper' }} />
+      <Stack.Screen name="test-import" options={{ title: 'Test Import' }} />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
 
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-
-  // Handle initial routing based on authentication
-  useEffect(() => {
-    if (!loaded) return;
-
-    const firstSegment = segments[0];
-    if (!firstSegment) {
-      // Route to the auth path after the layout is fully mounted and router is ready
-      try {
-        // Using requestAnimationFrame ensures the UI is ready before navigation
-        requestAnimationFrame(() => {
-          router.replace('/(auth)/role-selection');
-        });
-      } catch (e) {
-        console.error('Navigation error:', e);
-      }
-    }
-  }, [loaded, segments, router]);
 
   // Hide splash screen once everything is loaded
   useEffect(() => {
@@ -61,16 +67,7 @@ export default function RootLayout() {
       <PaperProvider theme={theme}>
         <SafeAreaProvider>
           <ThemeProvider value={navigationTheme}>
-            <Stack>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-              <Stack.Screen name="(mentor)" options={{ headerShown: false }} />
-              <Stack.Screen name="(visitor)" options={{ headerShown: false }} />
-              <Stack.Screen name="(loggedIn)" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="test-paper" options={{ title: 'Test Paper' }} />
-              <Stack.Screen name="test-import" options={{ title: 'Test Import' }} />
-            </Stack>
+            <RootLayoutNav />
             <StatusBar style="auto" />
           </ThemeProvider>
         </SafeAreaProvider>
