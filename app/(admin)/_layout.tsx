@@ -119,6 +119,13 @@ export default function AdminLayout() {
                 onPress={() => router.push('/user-management?role=mentor')}
               />
               <Drawer.Item
+                icon="calendar"
+                label="Program Schedule"
+                active={isActive('/activities')}
+                style={styles.expandedItem}
+                onPress={() => router.push('/activities')}
+              />
+              <Drawer.Item
                 icon="cog"
                 label="Settings"
                 active={isActive('/settings')}

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Card, Text, Title, Button, Divider, DataTable, Badge, IconButton } from 'react-native-paper';
+// @ts-ignore
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { Colors } from '../../constants/Colors';
@@ -98,6 +100,7 @@ export default function AdminDashboard() {
               {loading ? '...' : visitorCount}
             </Text>
             <Text style={styles.statsLabel}>Active Visitors</Text>
+            <Icon name="account-group" size={24} color={Colors.light.primary} />
           </View>
           <Button 
             mode="text" 
@@ -116,6 +119,7 @@ export default function AdminDashboard() {
               {loading ? '...' : mentorCount}
             </Text>
             <Text style={styles.statsLabel}>Mentors</Text>
+            <Icon name="account-tie" size={24} color={Colors.light.primary} />
           </View>
           <Button 
             mode="text" 
@@ -126,6 +130,80 @@ export default function AdminDashboard() {
           >
             View All
           </Button>
+        </View>
+        
+        <View style={styles.statsCard}>
+          <View style={styles.statsCardContent}>
+            <Text style={styles.statsNumber}>42</Text>
+            <Text style={styles.statsLabel}>Activities</Text>
+            <Icon name="calendar-check" size={24} color={Colors.light.primary} />
+          </View>
+          <Button 
+            mode="text" 
+            textColor={Colors.light.headerBackground}
+            onPress={() => router.push('/activities')}
+            style={styles.viewButton}
+          >
+            View All
+          </Button>
+        </View>
+      </View>
+      
+      {/* Upcoming Activities Section */}
+      <View style={styles.sectionCard}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>Upcoming Activities</Text>
+          <Button 
+            mode="contained" 
+            buttonColor={Colors.light.primary}
+            textColor={Colors.light.headerBackground}
+            compact
+            onPress={() => router.push('/activities')}
+          >
+            View All
+          </Button>
+        </View>
+        <Divider />
+        <View style={styles.tableContainer}>
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title>Activity</DataTable.Title>
+              <DataTable.Title>Date</DataTable.Title>
+              <DataTable.Title>Location</DataTable.Title>
+              <DataTable.Title numeric>Participants</DataTable.Title>
+              <DataTable.Title numeric>Actions</DataTable.Title>
+            </DataTable.Header>
+
+            <DataTable.Row>
+              <DataTable.Cell>Campus Tour</DataTable.Cell>
+              <DataTable.Cell>Jun 15, 2023</DataTable.Cell>
+              <DataTable.Cell>Main Campus</DataTable.Cell>
+              <DataTable.Cell numeric>25</DataTable.Cell>
+              <DataTable.Cell numeric>
+                <IconButton icon="pencil" size={20} onPress={() => router.push('/activities')} />
+              </DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>Welcome Dinner</DataTable.Cell>
+              <DataTable.Cell>Jun 16, 2023</DataTable.Cell>
+              <DataTable.Cell>Dining Hall</DataTable.Cell>
+              <DataTable.Cell numeric>42</DataTable.Cell>
+              <DataTable.Cell numeric>
+                <IconButton icon="pencil" size={20} onPress={() => router.push('/activities')} />
+              </DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>Team Building</DataTable.Cell>
+              <DataTable.Cell>Jun 17, 2023</DataTable.Cell>
+              <DataTable.Cell>Sports Center</DataTable.Cell>
+              <DataTable.Cell numeric>38</DataTable.Cell>
+              <DataTable.Cell numeric>
+                <IconButton icon="pencil" size={20} onPress={() => router.push('/activities')} />
+              </DataTable.Cell>
+            </DataTable.Row>
+          </DataTable>
         </View>
       </View>
       
@@ -221,7 +299,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   statsCard: {
-    width: '48%', // Two cards side by side with some margin
+    width: '31%', // Three cards with space between
     backgroundColor: Colors.light.background,
     padding: 16,
     borderRadius: 8,
@@ -245,6 +323,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.text,
     marginTop: 8,
+    marginBottom: 8,
   },
   viewButton: {
     marginTop: 8,
