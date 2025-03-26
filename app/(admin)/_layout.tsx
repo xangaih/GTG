@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { Slot, useRouter, usePathname } from 'expo-router';
-import { Appbar, useTheme, Text, Drawer, Avatar, IconButton } from 'react-native-paper';
+import { Appbar, useTheme, Text, Drawer, Avatar, IconButton, Divider } from 'react-native-paper';
 import { ThemedView } from '../../components/ThemedView';
 import { Colors } from '../../constants/Colors';
 // @ts-ignore
@@ -14,7 +14,7 @@ export default function AdminLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -24,10 +24,6 @@ export default function AdminLayout() {
 
   const handleLogout = () => {
     router.replace('/(auth)/role-selection');
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed((prev) => !prev);
   };
 
   const isActive = (path: string) => {
@@ -40,67 +36,39 @@ export default function AdminLayout() {
         style={styles.header} 
         theme={{ colors: { surface: Colors.light.headerBackground } }}
       >
+        <Appbar.Action 
+          icon="menu" 
+          color={Colors.light.primary}
+          onPress={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+        />
         <Image 
           source={require('../../assets/images/depauw-logo.png')} 
           style={styles.headerLogo}
           resizeMode="contain"
         />
         <Appbar.Content title="Admin Dashboard" color={Colors.light.headerText} />
-        <Appbar.Action 
-          icon="logout" 
-          color={Colors.light.primary}
-          onPress={handleLogout} 
-        />
       </Appbar.Header>
       
-      <View style={styles.contentContainer}>
-        {/* Backdrop (only visible when sidebar is open) */}
+      <View style={styles.content}>
+        {/* Overlay to close sidebar when clicking outside */}
         {!isSidebarCollapsed && (
-          <TouchableOpacity
-            style={styles.backdrop}
-            onPress={toggleSidebar} // Close sidebar when backdrop is pressed
-            activeOpacity={1}
+          <TouchableOpacity 
+            style={styles.overlay} 
+            activeOpacity={0.2}
+            onPress={() => setIsSidebarCollapsed(true)}
           />
         )}
-
-        {/* Sidebar */}
-        <View
-          style={[
-            styles.sidebar,
-            { width: isSidebarCollapsed ? 50 : 240 },
-            isSidebarCollapsed ? null : styles.sidebarOverlay, // Apply overlay style when sidebar is open
-          ]}
-        >
-          {/* Collapse/Expand Button */}
-          <TouchableOpacity onPress={toggleSidebar} style={styles.collapseButton}>
-            <Icon
-              name={isSidebarCollapsed ? 'menu' : 'menu'}
-              size={24}
-              color={Colors.light.primary}
-            />
-          </TouchableOpacity>
-
-          {/* Admin Profile (Hidden when collapsed) */}
-          {!isSidebarCollapsed && (
-            <View style={styles.adminProfile}>
-              <Avatar.Icon 
-                size={60} 
-                icon="account" 
-                color={Colors.light.headerBackground}
-                style={{ backgroundColor: Colors.light.primary }}
-              />
-              <Text style={styles.adminName}>Admin User</Text>
-              <Text style={styles.adminEmail}>admin@depauw.edu</Text>
-            </View>
-          )}
-          
-          {/* Drawer Items (Hidden when collapsed) */}
-          {!isSidebarCollapsed && (
+        
+        <Drawer.Section style={[
+          styles.drawer, 
+          { width: isSidebarCollapsed ? 80 : 280 }
+        ]}>
+          <View style={styles.drawerContent}>
             <Drawer.Section style={styles.drawerSection}>
               <Drawer.Item
                 icon="view-dashboard"
                 label="Dashboard"
-                active={isActive('/index') || isActive('/')}
+                active={isActive('/')}
                 style={styles.expandedItem}
                 onPress={() => router.push('/')}
               />
@@ -114,12 +82,12 @@ export default function AdminLayout() {
               <Drawer.Item
                 icon="account-tie"
                 label="Manage Mentors"
-                active={isActive('/user-management?role=mentor')}
+                active={isActive('/manage-mentors')}
                 style={styles.expandedItem}
-                onPress={() => router.push('/user-management?role=mentor')}
+                onPress={() => router.push('/manage-mentors')}
               />
               <Drawer.Item
-                icon="calendar"
+                icon="clipboard-list"
                 label="Program Schedule"
                 active={isActive('/activities')}
                 style={styles.expandedItem}
@@ -133,11 +101,26 @@ export default function AdminLayout() {
                 onPress={() => router.push('/')}
               />
             </Drawer.Section>
-          )}
-        </View>
+            
+            <Divider style={styles.divider} />
+            
+            <Drawer.Item
+              icon="logout"
+              label="Logout"
+              style={styles.expandedItem}
+              onPress={handleLogout}
+            />
+
+            <IconButton
+              icon={isSidebarCollapsed ? 'chevron-right' : 'chevron-left'}
+              size={24}
+              onPress={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              style={styles.collapseButton}
+            />
+          </View>
+        </Drawer.Section>
         
-        {/* Main Content */}
-        <View style={styles.content}>
+        <View style={styles.mainContent}>
           <Slot />
         </View>
       </View>
@@ -158,64 +141,58 @@ const styles = StyleSheet.create({
     height: 32,
     marginLeft: 8,
   },
-  contentContainer: {
+  content: {
     flex: 1,
     flexDirection: 'row',
   },
-  sidebar: {
-    backgroundColor: Colors.light.background,
-    borderRightWidth: 1,
-    borderRightColor: '#E0E0E0',
-    zIndex: 1, // Ensure the sidebar is above the main content
-  },
-  sidebarOverlay: {
-    position: 'absolute', // Overlay the sidebar on top of the main content
-    top: 0,
-    left: 0,
-    bottom: 0,
-    elevation: 5, // Add elevation for shadow effect (Android)
-    shadowColor: '#000', // Add shadow for iOS
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  backdrop: {
+  overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
-    zIndex: 0, // Ensure it's below the sidebar
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    zIndex: 1,
+  },
+  drawer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    backgroundColor: Colors.light.background,
+    zIndex: 2,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    overflow: 'hidden',
+  },
+  drawerContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
   },
   drawerSection: {
-    paddingHorizontal: 0,
+    width: '100%',
   },
   expandedItem: {
-    paddingLeft: 16,
-    height: 48,
+    marginVertical: 4,
+    paddingHorizontal: 16,
+    width: '100%',
+    height: 50,
   },
   collapseButton: {
-    alignItems: 'center',
-    padding: 8,
+    alignSelf: 'center',
+    marginTop: 16,
   },
-  adminProfile: {
-    padding: 16,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-  },
-  adminName: {
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
-  adminEmail: {
-    fontSize: 12,
-    color: Colors.light.text,
-    opacity: 0.7,
-  },
-  content: {
+  mainContent: {
     flex: 1,
-    backgroundColor: Colors.light.background, // Ensure the main content has a background color
+    marginLeft: 80, // Adjust based on collapsed width
+  },
+  divider: {
+    marginVertical: 8,
+    width: '90%',
+    alignSelf: 'center',
   },
 });
