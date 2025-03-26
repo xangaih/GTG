@@ -61,7 +61,7 @@ export default function AdminLayout() {
         
         <Drawer.Section style={[
           styles.drawer, 
-          { width: isSidebarCollapsed ? 80 : 280 }
+          { width: isSidebarCollapsed ? 0 : 280, left: isSidebarCollapsed ? -10 : 0 }
         ]}>
           <View style={styles.drawerContent}>
             <Drawer.Section style={styles.drawerSection}>
@@ -110,17 +110,10 @@ export default function AdminLayout() {
               style={styles.expandedItem}
               onPress={handleLogout}
             />
-
-            <IconButton
-              icon={isSidebarCollapsed ? 'chevron-right' : 'chevron-left'}
-              size={24}
-              onPress={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              style={styles.collapseButton}
-            />
           </View>
         </Drawer.Section>
         
-        <View style={styles.mainContent}>
+        <View style={[styles.mainContent, { marginLeft: isSidebarCollapsed ? 0 : 280 }]}>
           <Slot />
         </View>
       </View>
@@ -182,13 +175,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
   },
-  collapseButton: {
-    alignSelf: 'center',
-    marginTop: 16,
-  },
   mainContent: {
     flex: 1,
-    marginLeft: 80, // Adjust based on collapsed width
   },
   divider: {
     marginVertical: 8,
